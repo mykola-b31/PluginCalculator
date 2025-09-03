@@ -1,0 +1,25 @@
+# IDEA
+/.idea/
+/*.iml
+/out/
+/*.iws
+
+# Maven
+/target/
+/pom.xml.tag
+/pom.xml.releaseBackup
+/pom.xml.versionsBackup
+/logs/
+/dependency-reduced-pom.xml
+
+# Gradle
+/build/
+/.gradle/
+/gradle-app.setting
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# JAR
+/plugins/*.jar
