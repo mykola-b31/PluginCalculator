@@ -22,7 +22,7 @@ public class CoreCalculator {
     private static final String MAIN_CLASS_PROPERTY = "main.class";
     private static final String PROPERTIES_EXTENSION = ".properties";
     private static final String JAR_EXTENSION = ".jar";
-    private static final String PLUGIN_DIR = "E:/НАВЧАННЯ/JavaTech/Babko_lab1/plugins";
+    private static final String PLUGIN_DIR = "plugins";
 
     public static void main(String[] args) throws IOException, InstantiationException, IllegalAccessException,
             URISyntaxException, NoSuchMethodException, SecurityException, IllegalArgumentException,
@@ -44,26 +44,34 @@ public class CoreCalculator {
                 boolean isMatchToOperation = false;
                 for (String operation : pluginClasses.keySet()) {
                     if (input.contains(operation)) {
-                        String escapedOperation = Pattern.quote(operation);
-                        Pattern pattern = Pattern.compile("(\\d+(\\.\\d+)?)\\s*(" + escapedOperation + ")\\s*(\\d+(\\.\\d+)?)");
-                        Matcher matcher = pattern.matcher(input);
+                        PluginInfo pluginInfo = pluginClasses.get(operation);
+                        String operationQ = Pattern.quote(operation);
 
-                        if (matcher.matches()) {
-                            isMatchToOperation = true;
-                            String firstParameter = matcher.group(1);
-                            String operator = matcher.group(3);
-                            String secondParameter = matcher.group(4);
-                            Class<?>[] methodParameterTypes = new Class<?>[] {
-                                    double.class, double.class
-                            };
-                            Object[] methodArgument = new Object[] {
-                                    Double.valueOf(firstParameter), Double.valueOf(secondParameter)
-                            };
-                            Double result = (Double) executeMethod(
-                                    pluginClasses.get(operator).getClassReference(),
-                                    "calculateBinary", methodParameterTypes, methodArgument
-                            );
-                            System.out.println("The result of operation " + result);
+                        if (pluginInfo.getOperatorType() == OperatorType.BINARY) {
+                            Pattern binaryPattern = Pattern.compile("(\\d+(?:\\.\\d+)?)\\s*(" + operationQ + ")\\s*(\\d+(\\.\\d+)?)");
+                            Matcher matcher = binaryPattern.matcher(input);
+                            if (matcher.matches()) {
+                                isMatchToOperation = true;
+                                String firstParameter = matcher.group(1);
+                                String secondParameter = matcher.group(3);
+                                executeBinaryOperation(pluginInfo, firstParameter, secondParameter);
+                            }
+                        } else if (pluginInfo.getOperatorType() == OperatorType.UNARY) {
+                            Pattern unaryPattern1 = Pattern.compile(operationQ + "\\s+(\\d+(?:\\.\\d+)?)");
+                            Pattern unaryPattern2 = Pattern.compile("(\\d+(?:\\.\\d+)?)\\s+" + operationQ);
+
+                            Matcher matcher1 = unaryPattern1.matcher(input);
+                            Matcher matcher2 = unaryPattern2.matcher(input);
+
+                            if (matcher1.matches()) {
+                                isMatchToOperation = true;
+                                String parameter = matcher1.group(1);
+                                executeUnaryOperation(pluginInfo, parameter);
+                            } else if (matcher2.matches()) {
+                                isMatchToOperation = true;
+                                String parameter = matcher2.group(1);
+                                executeUnaryOperation(pluginInfo, parameter);
+                            }
                         }
                     }
                 }
@@ -72,6 +80,33 @@ public class CoreCalculator {
                 }
             }
         }
+    }
+
+    private static void executeBinaryOperation(PluginInfo pluginInfo, String firstParameter, String secondParameter)
+        throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        Class<?>[] methodParameterTypes = new Class<?>[]{
+                double.class, double.class
+        };
+        Object[] methodArgument = new Object[]{
+                Double.valueOf(firstParameter), Double.valueOf(secondParameter)
+        };
+        Double result = (Double) executeMethod(
+                pluginInfo.getClassReference(),
+                "calculateBinary", methodParameterTypes, methodArgument
+        );
+        System.out.println("The result of operation " + result);
+    }
+
+    private static void executeUnaryOperation(PluginInfo pluginInfo, String parameter)
+        throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        Class<?>[] methodParameterTypes = new Class<?>[] {double.class};
+        Object[] methodArgument = new Object[] {Double.valueOf(parameter)};
+
+        Double result = (Double) executeMethod(
+                pluginInfo.getClassReference(), "calculateUnary",
+                methodParameterTypes, methodArgument
+        );
+        System.out.println("The result of operation " + result);
     }
 
     private static File[] getAllJarsFromPluginDir() {
@@ -147,7 +182,7 @@ public class CoreCalculator {
                     } else if (OperatorType.BINARY.getOperatorType().equalsIgnoreCase(operationType)) {
                         pluginInfo.setOperatorType(OperatorType.BINARY);
                     }
-                    pluginInfo.setOperatorType(OperatorType.BINARY);
+                    //pluginInfo.setOperatorType(OperatorType.BINARY);
                     pluginInfo.setOperator(operator);
                     pluginInfo.setDescription(description);
                     pluginClasses.put(pluginInfo.getOperator().toString(), pluginInfo);
