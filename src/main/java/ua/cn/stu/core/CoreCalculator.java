@@ -48,7 +48,7 @@ public class CoreCalculator {
                         String operationQ = Pattern.quote(operation);
 
                         if (pluginInfo.getOperatorType() == OperatorType.BINARY) {
-                            Pattern binaryPattern = Pattern.compile("(\\d+(?:\\.\\d+)?)\\s*(" + operationQ + ")\\s*(\\d+(\\.\\d+)?)");
+                            Pattern binaryPattern = Pattern.compile("(\\d+(?:\\.\\d+)?)\\s*(" + operationQ + ")\\s*(\\d+(?:\\.\\d+)?)");
                             Matcher matcher = binaryPattern.matcher(input);
                             if (matcher.matches()) {
                                 isMatchToOperation = true;

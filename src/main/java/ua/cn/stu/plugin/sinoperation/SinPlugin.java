@@ -1,15 +1,15 @@
-package ua.cn.stu.plugin.sqrtoperation;
+package ua.cn.stu.plugin.sinoperation;
 
 import ua.cn.stu.plugin.api.Plugin;
 import ua.cn.stu.plugin.api.UnaryOperator;
 
-public class SqrtPlugin implements Plugin, UnaryOperator {
+public class SinPlugin implements Plugin, UnaryOperator {
 
-    public static final String PLUGIN_NAME = "Square root operation plugin";
+    public static final String PLUGIN_NAME = "Sinus operation plugin";
 
     @Override
     public double calculateUnary(double operand) {
-        return operand * operand;
+        return Math.sin(operand);
     }
 
     @Override
